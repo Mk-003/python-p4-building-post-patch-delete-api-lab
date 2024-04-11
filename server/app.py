@@ -25,7 +25,7 @@ def bakeries():
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-
+    
     bakery = Bakery.query.filter_by(id=id).first()
     bakery_serialized = bakery.to_dict()
     return make_response ( bakery_serialized, 200  )
@@ -44,6 +44,42 @@ def most_expensive_baked_good():
     most_expensive = BakedGood.query.order_by(BakedGood.price.desc()).limit(1).first()
     most_expensive_serialized = most_expensive.to_dict()
     return make_response( most_expensive_serialized,   200  )
+
+@app.route('/baked_goods', methods=['GET','POST'])
+def baked_goods():
+    if request.method=='GET':
+        baked_goods=[]
+        for baked_good in BakedGood.query.all():
+            baked_good_dict= baked_good.to_dict()
+            baked_goods.append(baked_good_dict)
+
+            response=make_response(
+                baked_goods,
+                200
+            
+            )
+            return response
+        
+    elif request.method=='POST':
+         new_baked_good=BakedGood(
+             name =request.form.get("name")
+            #  price =request.form.get("price")
+            #  bakery_id=request.form.get("bakery_id")
+             
+         )
+         db.session.add(new_baked_good)
+         db.session.commit()
+
+         baked_good_dict=new_baked_good.to_dict()
+         response=make_response(
+             baked_good_dict,
+             201
+         )
+         return response
+
+
+
+    
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
